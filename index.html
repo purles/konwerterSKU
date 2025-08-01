@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konwerter SKU na ID IDS - IdoSell</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .header p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .panel h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+        
+        label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .input-textarea {
+            height: 120px;
+        }
+        
+        .output-textarea {
+            height: 200px;
+            background-color: #f8fafc;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            flex-grow: 1;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background-color: #2563eb;
+        }
+        
+        .btn-primary:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            border: 2px solid #d1d5db;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f9fafb;
+        }
+        
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #059669;
+        }
+        
+        .results-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .results-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .result-panel {
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .success-panel {
+            background-color: #f0fdf4;
+            border: 2px solid #bbf7d0;
+        }
+        
+        .error-panel {
+            background-color: #fef2f2;
+            border: 2px solid #fecaca;
+        }
+        
+        .success-panel h3 {
+            color: #166534;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .error-panel h3 {
+            color: #991b1b;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .product-table {
+            width: 100%;
+            font-size: 0.875rem;
+            border-collapse: collapse;
+        }
+        
+        .product-table th {
+            text-align: left;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid #bbf7d0;
+            color: #166534;
+            font-weight: 600;
+        }
+        
+        .product-table td {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #dcfce7;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .not-found-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .not-found-tag {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        
+        .instructions {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .instructions h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .instructions ol {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+        
+        .instructions li {
+            counter-increment: step-counter;
+            margin-bottom: 0.5rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+        
+        .instructions li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                🔍 Konwerter SKU → ID IDS
+            </h1>
+            <p>Narzędzie do konwersji numerów SKU na ID IDS dla wyszukiwarki zaawansowanej w IdoSell</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Input Panel -->
+            <div class="panel">
+                <h2>📝 Dane wejściowe</h2>
+                <label for="inputText">Wklej tekst z numerami SKU</label>
+                <textarea 
+                    id="inputText" 
+                    class="input-textarea"
+                    placeholder="Wklej tutaj tekst zawierający numery SKU (np. 101, 102, 103 lub 101 102 103 lub dowolny tekst z numerami)"
+                ></textarea>
+                
+                <div class="button-group">
+                    <button id="convertBtn" class="btn btn-primary">
+                        🔄 Konwertuj SKU → ID IDS
+                    </button>
+                    <button id="clearBtn" class="btn btn-secondary">
+                        ✖️ Wyczyść
+                    </button>
+                </div>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>📋 ID IDS dla IdoSell</h2>
+                    <button id="copyBtn" class="btn btn-success hidden">
+                        📋 Kopiuj
+                    </button>
+                </div>
+                <textarea 
+                    id="outputText" 
+                    class="output-textarea"
+                    readonly
+                    placeholder="Tutaj pojawią się ID IDS, jeden w każdej linii, gotowe do wklejenia w wyszukiwarce zaawansowanej IdoSell"
+                ></textarea>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="results-section hidden">
+            <!-- Found SKUs -->
+            <div id="foundPanel" class="result-panel success-panel hidden">
+                <h3>✅ Znalezione SKU (<span id="foundCount">0</span>)</h3>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    <table class="product-table">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>ID IDS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="foundTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Not Found SKUs -->
+            <div id="notFoundPanel" class="result-panel error-panel hidden">
+                <h3>❌ Nie znalezione SKU (<span id="notFoundCount">0</span>)</h3>
+                <div id="notFoundTags" class="not-found-tags">
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3>💡 Instrukcja użycia</h3>
+            <ol>
+                <li>Wklej tekst zawierający numery SKU (np. "101, 102, 103" lub "SKU: 101 102 103")</li>
+                <li>Kliknij "Konwertuj SKU → ID IDS"</li>
+                <li>Skopiuj wyniki z prawego pola</li>
+                <li>Wklej w wyszukiwarce zaawansowanej IdoSell (pole ID produktu)</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Baza danych produktów
+        const products = {
+            '101': '2792',
+            '102': '2822',
+            '103': '2826',
+            '104': '2925',
+            '105': '10',
+            '106': '3056',
+            '108': '2933',
+            '109': '3086',
+            '110': '2941',
+            '111': '2940',
+            '112': '2834',
+            '113': '3082',
+            '114': '5145',
+            '115': '3084',
+            '116': '3087',
+            '117': '3088',
+            '118': '3050',
+            '119': '2838',
+            '120': '2939',
+            '121': '2926',
+            '122': '2937',
+            '123': '2842',
+            '124': '3089',
+            '125': '6042',
+            '126': '6048',
+            '127': '6051',
+            '128': '6041',
+            '129': '6413',
+            '130': '2820',
+            '131': '2943',
+            '132': '2944',
+            '135': '3072',
+            '137': '3074',
+            '138': '3075',
+            '139': '3076',
+            '140': '3077',
+            '141': '3092',
+            '142': '3078',
+            '143': '3079',
+            '144': '3080',
+            '145': '3081',
+            '146': '3274',
+            '147': '7635',
+            '148': '4123',
+            '149': '5364',
+            '150': '8009',
+            '151': '13478',
+            '152': '13483',
+            '155': '13490',
+            '156': '17074',
+            '157': '22222',
+            '158': '22218',
+            '160': '17078',
+            '161': '19644',
+            '162': '20',
+            '163': '56554',
+            '164': '13',
+            '165': '56595',
+            '166': '56619',
+            '167': '70509',
+            '168': '88837',
+            '170': '12',
+            '171': '11',
+            '173': '80818',
+            '174': '80904',
+            '180': '96055'
+        };
+
+        // Elementy DOM
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const convertBtn = document.getElementById('convertBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const resultsSection = document.getElementById('resultsSection');
+        const foundPanel = document.getElementById('foundPanel');
+        const notFoundPanel = document.getElementById('notFoundPanel');
+        const foundCount = document.getElementById('foundCount');
+        const notFoundCount = document.getElementById('notFoundCount');
+        const foundTableBody = document.getElementById('foundTableBody');
+        const notFoundTags = document.getElementById('notFoundTags');
+
+        // Funkcja konwersji
+        function convertSkuToIds() {
+            const text = inputText.value;
+            
+            // Wyciągnij wszystkie trzycyfrowe numery
+            const threeDigitNumbers = text.match(/\b\d{3}\b/g) || [];
+            
+            // Usuń duplikaty
+            const uniqueSkus = [...new Set(threeDigitNumbers)];
+            
+            const found = [];
+            const notFound = [];
+            const idsResults = [];
+
+            uniqueSkus.forEach(sku => {
+                if (products[sku]) {
+                    found.push({ sku, ids: products[sku] });
+                    idsResults.push(products[sku]);
+                } else {
+                    notFound.push(sku);
+                }
+            });
+
+            // Ustaw wyniki
+            outputText.value = idsResults.join('\n');
+            
+            // Pokaż/ukryj przycisk kopiowania
+            if (idsResults.length > 0) {
+                copyBtn.classList.remove('hidden');
+            } else {
+                copyBtn.classList.add('hidden');
+            }
+
+            // Aktualizuj sekcję wyników
+            updateResultsSection(found, notFound);
+        }
+
+        function updateResultsSection(found, notFound) {
+            // Wyczyść poprzednie wyniki
+            foundTableBody.innerHTML = '';
+            notFoundTags.innerHTML = '';
+
+            if (found.length > 0 || notFound.length > 0) {
+                resultsSection.classList.remove('hidden');
+            } else {
+                resultsSection.classList.add('hidden');
+                return;
+            }
+
+            // Znalezione SKU
+            if (found.length > 0) {
+                foundPanel.classList.remove('hidden');
+                foundCount.textContent = found.length;
+                
+                found.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.sku}</td>
+                        <td>${item.ids}</td>
+                    `;
+                    foundTableBody.appendChild(row);
+                });
+            } else {
+                foundPanel.classList.add('hidden');
+            }
+
+            // Nie znalezione SKU
+            if (notFound.length > 0) {
+                notFoundPanel.classList.remove('hidden');
+                notFoundCount.textContent = notFound.length;
+                
+                notFound.forEach(sku => {
+                    const tag = document.createElement('span');
+                    tag.className = 'not-found-tag';
+                    tag.textContent = sku;
+                    notFoundTags.appendChild(tag);
+                });
+            } else {
+                notFoundPanel.classList.add('hidden');
+            }
+        }
+
+        // Kopiowanie do schowka
+        async function copyToClipboard() {
+            try {
+                await navigator.clipboard.writeText(outputText.value);
+                copyBtn.textContent = '✅ Skopiowano!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '📋 Kopiuj';
+                }, 2000);
+            } catch (err) {
+                alert('Błąd kopiowania. Zaznacz tekst i skopiuj ręcznie (Ctrl+C).');
+            }
+        }
+
+        // Czyszczenie wszystkich pól
+        function clearAll() {
+            inputText.value = '';
+            outputText.value = '';
+            copyBtn.classList.add('hidden');
+            resultsSection.classList.add('hidden');
+            foundPanel.classList.add('hidden');
+            notFoundPanel.classList.add('hidden');
+        }
+
+        // Sprawdzanie czy przycisk konwersji powinien być aktywny
+        function updateConvertButton() {
+            convertBtn.disabled = !inputText.value.trim();
+        }
+
+        // Event listenery
+        convertBtn.addEventListener('click', convertSkuToIds);
+        clearBtn.addEventListener('click', clearAll);
+        copyBtn.addEventListener('click', copyToClipboard);
+        inputText.addEventListener('input', updateConvertButton);
+
+        // Inicjalizacja
+        updateConvertButton();
+    </script>
+</body>
+</html>
